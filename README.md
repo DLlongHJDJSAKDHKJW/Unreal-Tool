@@ -1,6 +1,95 @@
-# 超简单虚幻引擎Python执行器
+# 虚幻引擎Python执行器
 
-这是一个最简单的工具，让你能够**在不重启虚幻引擎的情况下**执行Python脚本。
+这是一个现代化的桌面应用，允许用户从桌面应用向运行中的虚幻引擎发送Python代码，并查看执行结果。该工具特别适合开发者在不重启引擎的情况下快速执行和测试Python脚本。
+
+## 功能特点
+
+- **即时执行** - 无需重启UE即可执行Python脚本
+- **现代化界面** - 美观直观的用户界面
+- **多标签设计** - 主页、蓝图工具、动画工具等功能分类清晰
+- **代码编辑器** - 内置语法高亮和代码编辑功能
+- **预设脚本** - 内置多种常用脚本模板
+- **连接管理** - 支持多端口连接到虚幻引擎
+
+## 安装与使用
+
+### 环境要求
+
+- Python 3.7或更高版本
+- PyQt5
+- 虚幻引擎4.26或更高版本（已启用Python支持）
+
+### 快速开始
+
+1. 克隆仓库到本地：
+   ```
+   git clone https://github.com/你的用户名/虚幻引擎Python执行器.git
+   ```
+
+2. 安装依赖：
+   ```
+   pip install PyQt5
+   ```
+
+3. 启动应用：
+   ```
+   python main.py
+   ```
+
+### 在虚幻引擎中设置
+
+1. 确保你的虚幻项目已启用Python支持
+2. 添加以下Python脚本到项目的启动脚本或手动在Python控制台执行：
+   ```python
+   # 这段代码将在虚幻引擎中启动监听服务
+   import socket
+   import unreal
+   import threading
+   
+   def socket_server():
+       sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+       sock.bind(('localhost', 9876))
+       sock.listen(1)
+       unreal.log("Python执行器服务已启动，监听端口9876")
+       
+       while True:
+           conn, addr = sock.accept()
+           data = conn.recv(65536).decode('utf-8')
+           if data:
+               try:
+                   unreal.log("执行Python代码...")
+                   exec(data)
+                   conn.send("执行成功".encode('utf-8'))
+               except Exception as e:
+                   error_msg = str(e)
+                   unreal.log_error(f"执行错误: {error_msg}")
+                   conn.send(f"执行错误: {error_msg}".encode('utf-8'))
+           conn.close()
+   
+   thread = threading.Thread(target=socket_server)
+   thread.daemon = True
+   thread.start()
+   ```
+
+## 使用技巧
+
+- **蓝图工具**: 可以快速生成蓝图和蓝图函数，如冒泡排序算法
+- **动画工具**: 辅助处理骨骼动画和动画序列
+- **常用工具**: 提供一系列常用操作的快捷访问
+
+## 开发者笔记
+
+### 虚幻引擎Python脚本注意事项
+
+在使用本工具向虚幻引擎发送Python脚本时，请遵循以下规则以避免执行问题：
+
+1. **避免使用嵌套函数**
+2. **避免使用递归函数**
+3. **避免依赖函数间调用**
+4. **使用扁平化代码结构**
+5. **优先使用迭代而非递归**
+
+完整的最佳实践和问题排查请参考本文档后半部分。
 
 ## 工作原理
 

@@ -37,7 +37,7 @@ class HomeTab(QWidget):
         copy_button.setMinimumHeight(44)
         copy_button.setMinimumWidth(140)
         copy_button.setStyleSheet(f"background-color: {COLORS['card']}; color: {COLORS['text']}; border-radius: 4px; font-weight: bold;")
-        copy_button.clicked.connect(self.copyExecutorScriptRequested.emit)
+        copy_button.clicked.connect(self.copy_executor_script)
         row1.addWidget(self.port_display)
         row1.addStretch(1)
         row1.addWidget(copy_button)
@@ -179,17 +179,19 @@ class HomeTab(QWidget):
         # 连接状态控制
         self.connected = False
 
+    def append_log(self, msg):
+        self.home_log.append(f"[info] {msg}")
+
     def copy_executor_script(self):
         from PyQt5.QtWidgets import QApplication
-        script = (
-            "import unreal\n"
-            "# 这里是你的执行器脚本内容，可以替换为实际内容\n"
-            "unreal.log('执行器脚本已复制')\n"
-        )
-        clipboard = QApplication.clipboard()
-        clipboard.setText(script)
-        if self.log_msg:
-            self.log_msg("已复制执行器脚本到剪贴板")
+        try:
+            with open('UESimpleExecutor.py', 'r', encoding='utf-8') as f:
+                script = f.read()
+            clipboard = QApplication.clipboard()
+            clipboard.setText(script)
+            self.append_log("已复制执行器脚本到剪贴板")
+        except Exception as e:
+            self.append_log(f"复制失败: {str(e)}")
 
     def get_port(self):
         try:
@@ -199,13 +201,8 @@ class HomeTab(QWidget):
 
     def set_connected(self, connected):
         self.connected = connected
-        # 只允许这些按钮始终可用
-        allow = [self.copy_button, self.auth_input, self.auth_btn, self.btn_check_update, self.connect_btn]
+        # 取消所有按钮的可用性限制，所有按钮始终可用
         for btn in self.all_buttons:
-            if btn in allow:
-                btn.setEnabled(True)
-            else:
-                btn.setEnabled(connected)
-        # 再次确保连接虚幻按钮始终可用
+            btn.setEnabled(True)
         if hasattr(self, 'connect_btn'):
             self.connect_btn.setEnabled(True) 
