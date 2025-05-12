@@ -1,0 +1,154 @@
+# Cursor IDE 项目规则：虚幻引擎Python执行器
+
+## 🌟 项目总览
+
+这是一个虚幻引擎Python脚本执行工具，允许用户从桌面应用向运行中的虚幻引擎发送Python代码，并查看执行结果。该工具特别适合开发者在不重启引擎的情况下快速执行和测试Python脚本。
+
+## 📋 面向初学者的开发指南
+
+### 开发环境
+
+- **Python版本**：3.7或更高
+- **虚幻引擎**：4.26或更高版本
+- **必要库**：PyQt5（用于桌面界面）
+
+
+
+
+
+## 🚨 虚幻引擎Python脚本规则（重要！）
+
+为避免在虚幻引擎中执行Python脚本时遇到问题，请遵循以下规则：
+
+### ⚠️ 禁止事项
+
+1. **不要使用嵌套函数**
+   ```python
+   # 错误示例 ❌
+   def outer_function():
+       def inner_function():
+           pass
+   ```
+
+2. **不要使用递归函数**
+   ```python
+   # 错误示例 ❌
+   def recursive_function(data):
+       if condition:
+           return
+       recursive_function(new_data)
+   ```
+
+3. **不要依赖函数间调用**
+   ```python
+   # 错误示例 ❌
+   def function_a():
+       pass
+       
+   def function_b():
+       function_a()  # 可能出错
+   ```
+
+### ✅ 推荐做法
+
+1. **使用扁平化代码结构**
+   ```python
+   # 正确示例 ✓
+   # 直接在主代码流中实现逻辑
+   components = get_components()
+   for component in components:
+       # 直接处理
+   ```
+
+2. **使用迭代替代递归**
+   ```python
+   # 正确示例 ✓
+   to_process = [root_item]
+   while to_process:
+       item = to_process.pop(0)
+       # 处理item
+       children = item.get_children()
+       to_process.extend(children)
+   ```
+
+3. **接受代码冗余**
+   ```python
+   # 正确示例 ✓
+   # 对于不同类型的组件，复制相似代码比调用函数更可靠
+   if component_type == "Static":
+       # 完整处理代码
+   elif component_type == "Skeletal":
+       # 完整处理代码（即使与上面类似）
+   ```
+
+4. **添加充分的日志记录**
+   ```python
+   # 正确示例 ✓
+   unreal.log("开始处理")
+   try:
+       # 代码
+       unreal.log(f"找到 {len(items)} 个项目")
+   except Exception as e:
+       unreal.log_error(f"错误: {str(e)}")
+       unreal.log_error(traceback.format_exc())
+   ```
+
+## 🔧 调试技巧
+
+1. **使用分阶段测试**：先测试简单指令，确认连接正常
+2. **查看UE日志**：所有Python错误都会显示在UE输出日志中
+3. **简化你的代码**：如果复杂脚本不工作，尝试简化它
+4. **保持耐心**：通过检查日志逐步排查问题
+
+## 📝 代码风格建议
+
+- 使用中文注释说明代码功能
+- 变量名使用有意义的名称（优先使用英文变量名）
+- UI字符串使用中文，提高用户体验
+- PyQt布局使用嵌套结构，保持界面整洁
+
+## 🚀 快速参考
+
+### 常用UE Python命令
+```python
+# 获取选中的Actor
+selected_actors = unreal.EditorActorSubsystem.get_selected_level_actors()
+
+# 创建对象
+new_actor = unreal.EditorLevelLibrary.spawn_actor_from_object(asset, location, rotation)
+
+# 获取资产
+asset = unreal.EditorAssetLibrary.find_asset_data(asset_path).get_asset()
+
+# 打印日志
+unreal.log("信息")
+unreal.log_warning("警告")
+unreal.log_error("错误")
+```
+
+### 错误排查快速参考
+
+| 错误类型 | 可能原因 | 解决方案 |
+|---------|---------|---------|
+| `name 'xxx' is not defined` | 函数作用域问题 | 避免函数调用，内联代码 |
+| 连接失败 | UE未运行或端口错误 | 检查端口设置和UE状态 |
+| 没有执行结果 | 代码语法错误 | 检查UE日志中的具体错误 |
+
+## 🎯 如何添加新功能
+
+1. 在`ue_script_executor_modern.py`中添加新的方法
+2. 添加对应的UI按钮或菜单项
+3. 连接信号和槽
+4. 编写直接内联的UE执行代码
+5. 测试功能是否正常工作
+
+## 📌 注意事项
+
+- 切记在UE中启动执行器服务器后再使用桌面工具
+- 确保虚幻引擎的Python接口已启用
+- 某些操作可能需要引擎在非PIE模式下
+- 大型代码块可能需要分成多个小块执行
+
+---
+
+记住：**在虚幻引擎环境中执行Python脚本时，简单直接的代码比精巧复杂的代码更可靠！**
