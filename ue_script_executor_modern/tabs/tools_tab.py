@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QGridLayout, QPushButton, QLabel, QHBoxLayout, QSpinBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QGridLayout, QPushButton, QLabel, QHBoxLayout, QDoubleSpinBox
 from ue_script_executor_modern.config import COLORS
 from PyQt5.QtCore import Qt
 
@@ -135,12 +135,13 @@ class ToolsTab(QWidget):
         frames_label.setStyleSheet(f"color: {COLORS['text']}; font-size: 14px;")
         track_move_layout.addWidget(frames_label)
         
-        self.frames_input = QSpinBox()
-        self.frames_input.setMinimum(1)
+        self.frames_input = QDoubleSpinBox()
+        self.frames_input.setMinimum(-100)
         self.frames_input.setMaximum(100)
-        self.frames_input.setValue(5)  # 默认值为5
+        self.frames_input.setValue(5)
+        self.frames_input.setSingleStep(1)
         self.frames_input.setStyleSheet(f"""
-            QSpinBox {{
+            QDoubleSpinBox {{
                 background-color: {COLORS['card']};
                 color: {COLORS['text']};
                 border: 1px solid {COLORS['border']};
@@ -149,7 +150,7 @@ class ToolsTab(QWidget):
                 min-width: 50px;
                 font-size: 14px;
             }}
-            QSpinBox::up-button, QSpinBox::down-button {{
+            QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{
                 background-color: {COLORS['panel']};
                 border: 1px solid {COLORS['border']};
             }}
@@ -328,13 +329,9 @@ class ToolsTab(QWidget):
         try:
             with open(script_path, 'r', encoding='utf-8') as f:
                 script_content = f.read()
-                
-            # 获取用户设置的帧数
             frames = self.frames_input.value()
-            
-            # 替换脚本中的帧数值
-            modified_script = script_content.replace("frame_number + 5", f"frame_number + {frames}")
-            
+            # 替换所有+ 5为+ {frames}
+            modified_script = script_content.replace("+ 5", f"+ {frames}")
             if self.send_to_ue:
                 self.send_to_ue(modified_script)
             if self.log_msg:
